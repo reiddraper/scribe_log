@@ -34,7 +34,7 @@ def handle(file, category, host='127.0.0.1', port=1463, prefix='', postfix=''):
     try:
       log_file.seek(0, 2)
       for line in tail_file(log_file):
-        log_entry = scribe.LogEntry(dict(category=category, message=prefix+line+postfix))
+        log_entry = scribe.LogEntry(category=category, message=prefix+line+postfix)
         result = client.Log(messages=[log_entry])
     finally:
       log_file.close()
