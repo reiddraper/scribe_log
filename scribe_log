@@ -22,6 +22,13 @@ def tail_file(file):
         else:
             yield line
 
+def scribe_fix_legacy():
+    global scribe.LogEntry
+    old_log_entry = scribe.LogEntry
+    def new_log_entry(**kwargs):
+        return old_log_entry(kwargs)
+    scribe.LogEntry = new_log_entry
+
 def handle(file, category, host='127.0.0.1', port=1463, prefix='', postfix=''):
     result = 0
 
@@ -41,10 +48,17 @@ def handle(file, category, host='127.0.0.1', port=1463, prefix='', postfix=''):
         try:
             log_file.seek(0, 2)
             for line in tail_file(log_file):
-                log_entry = scribe.LogEntry(
-                    category=category,
-                    message=prefix+line+postfix,
-                )
+                try:
+                    log_entry = scribe.LogEntry(
+                        category=category,
+                        message=prefix+line+postfix,
+                    )
+                except TypeError:
+                    scribe_fix_legacy()
+                    log_entry = scribe.LogEntry(
+                        category=category,
+                        message=prefix+line+postfix,
+                    )
                 result = client.Log(messages=[log_entry])
         finally:
             log_file.close()
