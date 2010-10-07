@@ -23,7 +23,7 @@ def tail_file(file):
             yield line
 
 def scribe_fix_legacy():
-    global scribe.LogEntry
+    global scribe
     old_log_entry = scribe.LogEntry
     def new_log_entry(**kwargs):
         return old_log_entry(kwargs)
